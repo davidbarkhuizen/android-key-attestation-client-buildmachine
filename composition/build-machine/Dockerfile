@@ -1,5 +1,4 @@
-# ubuntu:20.04
-FROM 740cfe0dc3fd 
+FROM ubuntu:20.04  
 LABEL maintainer "david.barkhuizen@gmail"
 
 WORKDIR /

@@ -1,6 +1,13 @@
 version: "3.3"
+
 services:
   server:
     build: .
     ports:
       - "8080:8080"
+    secrets:
+      - id_rsa
+
+secrets:
+  id_rsa:
+    file: ./secrets/id_rsa

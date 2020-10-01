@@ -1,1 +1,3 @@
 resources/**
+credentials/**
+node/node_modules/**

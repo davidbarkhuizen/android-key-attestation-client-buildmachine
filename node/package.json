@@ -2,10 +2,13 @@
   "name": "fluid-client-buildmachine",
   "version": "0.0.1",
   "description": "build-machine for fluid mobile client",
-  "main": "src/index.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "David Barkhuizen @ Indrajala",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

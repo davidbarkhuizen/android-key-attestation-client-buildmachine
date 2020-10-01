@@ -43,7 +43,22 @@ ENV PATH "$PATH:$GRADLE_HOME/bin:/opt/gradlew:$ANDROID_HOME/emulator:$ANDROID_HO
 ENV ANDROID_SDK_ROOT=/opt/android
 
 # force gradle to D/L gradle components
-RUN /tmp/build-machine/indrajala-fluid-client/studio/gradlew
+#RUN /tmp/build-machine/indrajala-fluid-client/studio/gradlew
 
 # force gradle to D/L dependencies & configure
-RUN /tmp/build-machine/indrajala-fluid-client/studio/gradlew build
+#RUN /tmp/build-machine/indrajala-fluid-client/studio/gradlew build
+
+# --------------------------------------------------------------------------
+# NODEJS
+
+WORKDIR /
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt update
+RUN apt install -y nodejs
+RUN apt install -y npm
+RUN npm install -y n -g
+RUN n stable
+
+RUN PATH="$PATH"

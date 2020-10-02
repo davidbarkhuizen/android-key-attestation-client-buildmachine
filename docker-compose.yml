@@ -7,7 +7,11 @@ services:
       - "8080:8080"
     secrets:
       - id_rsa
-
+    volumes:
+      - type: bind
+        source: /home/david/code/indrajala-fluid-client-buildmachine/node
+        target: /server/node  
+      
 secrets:
   id_rsa:
     file: ./resources/secrets/id_rsa

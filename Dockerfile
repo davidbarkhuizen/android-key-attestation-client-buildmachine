@@ -1,15 +1,11 @@
 FROM android-buildmachine:node
 
-WORKDIR /opt/fluid-build-server
-
-COPY ./node/package*.json ./
-RUN npm install
-COPY ./node/src ./src
-
 RUN mkdir -p /root/.ssh
 RUN chmod 0700 /root/.ssh
+
 RUN ssh-keyscan github.com > /root/.ssh/known_hosts
+RUN ln -s /run/secrets/id_rsa /root/.ssh/id_rsa
 
-EXPOSE 8080
+WORKDIR /server/node
 
-CMD [ "node", "src/server.js" ]
+ENTRYPOINT [ "npm", "run", "dev" ]

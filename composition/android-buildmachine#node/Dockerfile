@@ -51,14 +51,11 @@ ENV ANDROID_SDK_ROOT=/opt/android
 # --------------------------------------------------------------------------
 # NODEJS
 
-WORKDIR /
-
-SHELL ["/bin/bash", "-c"]
-
 RUN apt update
 RUN apt install -y nodejs
 RUN apt install -y npm
 RUN npm install -y n -g
 RUN n stable
-
 RUN PATH="$PATH"
+
+RUN npm install -g nodemon

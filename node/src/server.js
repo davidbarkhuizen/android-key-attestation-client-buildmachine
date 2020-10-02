@@ -9,23 +9,22 @@ const port = 8080;
 const fetchCode = () => { 
 
     const repo = 'github.com:davidbarkhuizen/indrajala-fluid-client.git';
-    //const checkoutPath = '/tmp/checkout'
+    const checkoutPath = '/tmp/checkout'
 
-    console.log('fetching');
+    console.log('fetching...');
 
-    const executing = exec(`ssh-agent bash -c 'ssh-add /run/secrets/id_rsa; git clone git@${repo}'`, function(err, stdout, stderr) {
+    const executing = exec(`ssh-agent bash -c 'ssh-add /run/secrets/id_rsa; git clone git@${repo} --depth 0 ${checkoutPath}'`, (err, stdout, stderr) => {
+        
         if (err) {
-            console.log('error')
-            console.log(stderr)
+            console.log('error');
+            console.log(stderr);
         }
-        console.log('normal termination');
+
         console.log(stdout);
     });
 
     executing.on('exit', (exitCode) => {
-
         console.log(`done, exit code ${exitCode}`);
-
     })
 }
 

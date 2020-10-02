@@ -1,16 +1,22 @@
 {
-  "name": "fluid-client-buildmachine",
+  "name": "indrajala-android-buildmachine",
   "version": "0.0.1",
-  "description": "build-machine for fluid mobile client",
+  "description": "single project android build machine",
   "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npm update && nodemon src/server.js"
+    "init": "npm update",
+    "dev": "npm run init && eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa && nodemon src/server.js"
   },
   "author": "David Barkhuizen @ Indrajala",
   "license": "UNLICENSED",
   "dependencies": {
     "express": "^4.17.1",
-    "nodegit": "^0.27.0"
+    "node-persist": "^3.1.0",
+    "nodegit": "^0.27.0",
+    "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }

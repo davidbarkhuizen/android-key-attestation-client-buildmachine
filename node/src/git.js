@@ -16,6 +16,7 @@ export const clone = async (url, checkoutLocation) => {
     try {        
         console.log(`cloning repo ${url} to location ${checkoutLocation} ...`);
         await nodegit.Clone(url, checkoutLocation, cloneOptions);
+        console.log('cloned.');
         return true;
     } catch (e) {
         console.log('error', e);

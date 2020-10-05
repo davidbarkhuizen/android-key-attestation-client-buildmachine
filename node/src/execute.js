@@ -1,18 +1,14 @@
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+import util from 'util';
+import child_process from 'child_process' 
+const exec = util.promisify(child_process.exec);
 
-async function execute(command) {
+export const execute = async (command, cwd) => {
 
     try {
-        const { stdout, stderr } = await exec(command);
+        const { stdout, stderr } = await exec(command, { cwd });
+        return { outcome: true, stdout, stderr };
     } catch (e) {
-
-        text = e.stdout;
-        errorText = e.stderr;
+        console.log(`error: ${e}`);;
+        return { outcome: false, stdout:e.stdout, stderr: e.stderr, error: e };
     }
-  
-  
-  
-  console.log('stdout:', stdout);
-  console.error('stderr:', stderr);
-}
+};

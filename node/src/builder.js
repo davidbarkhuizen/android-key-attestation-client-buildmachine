@@ -1,17 +1,14 @@
-import util from 'util';
-
 import { clone } from './git.js';
-
+import util from 'util';
 import rimraf from 'rimraf';
 const rimrafAsync = util.promisify(rimraf);
 
-// const exec = util.promisify(require('child_process').exec);
-// const path = require('path');
+import { execute } from './execute.js'
 
-const purgeFileLocations = async (
+const clean = async (
     checkoutLocation
 ) => {
-    console.log('purging file locations');
+    console.log('cleaning...');
     
     console.log(`source checkout location @${checkoutLocation}...`);
     await rimrafAsync(checkoutLocation);
@@ -19,9 +16,21 @@ const purgeFileLocations = async (
     console.log('cleaned');
 };
 
-export const cleanAndRebuild = async (
-    repoURL, checkoutLocation
+const build = async (
+    checkoutLocation,
+    buildCommand,
 ) => {
-    await purgeFileLocations(checkoutLocation);
+    console.log(`executing build command: ${buildCommand}`);
+    const { stdout, stderr, outcome } = await execute(buildCommand, checkoutLocation);
+    console.log('executed.');
+    console.log(stdout);
+    console.log(stderr);
+};
+
+export const cleanCloneBuild = async (
+    repoURL, checkoutLocation, buildCommand
+) => {
+    await clean(checkoutLocation);
     await clone(repoURL, checkoutLocation);
+    await build(checkoutLocation, buildCommand);
 };

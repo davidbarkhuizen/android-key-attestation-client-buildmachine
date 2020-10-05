@@ -8,7 +8,7 @@ app.use(express.json());
 const port = 8080;
 const checkoutLocation = "/tmp/checkout/";
 
-import { cleanAndRebuild } from './builder.js';
+import { cleanCloneBuild } from './builder.js';
 
 app.get('/', async (req, res) => {
     res.send('indrajala build-machine');
@@ -19,10 +19,13 @@ app.post('/configure', async (req, res) => {
     res.status(200);
     res.send('configuring...');
 
-    const repoURL = req.body.repoURL
+    const repoURL = req.body.repoURL;
     await storage.setItem('repoURL', repoURL);
 
-    await cleanAndRebuild(repoURL, checkoutLocation);
+    const buildCommand = req.body.buildCommand;
+    await storage.setItem('buildCommand', buildCommand);
+
+    await cleanCloneBuild(repoURL, checkoutLocation, buildCommand);
 
     console.log('done');
 });

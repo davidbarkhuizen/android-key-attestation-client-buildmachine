@@ -16,40 +16,69 @@ const checkoutLocation = "/tmp/checkout/";
 
 const git = require("nodegit");
 
-let repo = null;
+const credentialsCallback = (url, userName) => git.Cred.sshKeyFromAgent(userName)
 
 var cloneOptions = {
     fetchOpts: {
         callbacks: {
-            credentials: (url, userName) => git.Cred.sshKeyFromAgent(userName)
+            credentials: credentialsCallback
         }
     }
 };
 
+// 1. initial clone
+
 const clone = async (url) => {
-
-    console.log(`cleaning ${checkoutLocation}...`);
     try {
+        console.log(`cleaning ${checkoutLocation}...`);
         await rimraf(checkoutLocation);
-    } catch (e) {
-        console.log('error', e)
-    }
-
-    console.log(`cloning ${url}...`);
-    try {
-        repo = await git.Clone(url, checkoutLocation, cloneOptions);
-        console.dir(repo);
+        
+        console.log(`cloning ${url}...`);
+        await git.Clone(url, checkoutLocation, cloneOptions);
     } catch (e) {
         console.log('error', e)
     }
 };
 
-// 1. initial clone
-// 2. fetch
-// 3. check for trigger condition (e.g. new tag or commit)
+// 2. update
+
+const fetch = async () => {
+
+    console.log('synching...');
+
+    const repo = await git.Repository.open(checkoutLocation);
+    const done = await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
+
+    return repo;
+};
+
+const checkForNewTag = async (repo) => {
+
+    const tags = await git.Tag.list(repo);
+    console.log(tags);
+
+    tags.map(
+        () => {
+            const ref = await nodegit.Reference.lookup(repo, `refs/tags/${tagName}`);
+            const commit = await nodegit.Commit.lookup(repo, ref.target());
+            console.log(commit.date().toJSON())
+        }
+    );
+};
+
+// 3. detect trigger condition (e.g. new tag or commit) and checkout target state
+
+
+// triggers
+// - new tag, any branch
+
 // 4. launch build process
 // 5. extract build artefact (e.g. APK) 
 // 6. publish build artefact (e.g. S3 bucket, ftp site)
+
+
+
+// git.Checkout.tree(repo, tag.targetId()
 
 app.get('/', async (req, res) => {
     res.send('indrajala build-machine');
@@ -60,8 +89,16 @@ app.post('/configure', async (req, res) => {
     res.status(200);
     res.send('configuring...');
 
+    await storage.setItem('repoURL', req.body.repoURL);
+
     await clone(req.body.repoURL);
+
+    await synch();
+
+    console.log('done');
 });
+
+// const commit = repo.getReferenceCommit('head');
 
 storage.init({ dir: './local-storage' })
     .then(

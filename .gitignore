@@ -1,3 +1,4 @@
 resources/secrets/**
 credentials/**
 node/node_modules/**
+node/local-storage/**

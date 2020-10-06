@@ -12,6 +12,8 @@ var cloneOptions = {
 
 // 1. initial clone
 
+// const commit = repo.getReferenceCommit('head');
+
 export const clone = async (url, checkoutLocation) => {
     try {        
         console.log(`cloning repo ${url} to location ${checkoutLocation} ...`);
@@ -26,14 +28,11 @@ export const clone = async (url, checkoutLocation) => {
 
 // 2. update
 
-const fetch = async () => {
+const getRepo = async (checkoutLocation) => nodegit.Repository.open(checkoutLocation);
 
-    console.log('synching...');
-
-    const repo = await nodegit.Repository.open(checkoutLocation);
-    const done = await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
-
-    return repo;
+const fetch = async (repo) => {
+    console.log('fetching code...');
+    return await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
 };
 
 const checkForNewTag = async (repo) => {

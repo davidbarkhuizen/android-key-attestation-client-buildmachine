@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init": "npm update",
+    "init": "npm update && npm install",
     "dev": "npm run init && eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa && nodemon src/server.js"
   },
   "author": "David Barkhuizen @ Indrajala",
@@ -14,8 +14,10 @@
   "dependencies": {
     "express": "^4.17.1",
     "node-persist": "^3.1.0",
+    "node-ssh": "^11.1.1",
     "nodegit": "^0.27.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "scp2": "^0.5.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"

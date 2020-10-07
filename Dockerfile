@@ -1,4 +1,4 @@
-FROM android-buildmachine:node
+FROM buildmachine:base
 
 RUN mkdir -p /root/.ssh
 RUN chmod 0700 /root/.ssh

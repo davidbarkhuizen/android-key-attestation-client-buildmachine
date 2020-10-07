@@ -5,7 +5,7 @@ WORKDIR /
 
 SHELL ["/bin/bash", "-c"]
 
-ARG GRADLE_VERSION=5.4.1
+ARG GRADLE_VERSION=6.6.1
 ARG ANDROID_API_LEVEL=30
 ARG ANDROID_BUILD_TOOLS_LEVEL=30.0.2
 
@@ -42,16 +42,9 @@ ENV ANDROID_HOME=/opt/android
 ENV PATH "$PATH:$GRADLE_HOME/bin:/opt/gradlew:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
 ENV ANDROID_SDK_ROOT=/opt/android
 
-# force gradle to D/L gradle components
-#RUN /tmp/build-machine/indrajala-fluid-client/studio/gradlew
-
-# force gradle to D/L dependencies & configure
-#RUN /tmp/build-machine/indrajala-fluid-client/studio/gradlew build
-
 # --------------------------------------------------------------------------
 # NODEJS
 
-RUN apt update
 RUN apt install -y nodejs
 RUN apt install -y npm
 RUN npm install -y n -g

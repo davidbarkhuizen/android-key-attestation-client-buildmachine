@@ -21,6 +21,13 @@ export const clone = async (url, checkoutLocation) => {
         console.log('cloned.');
         return true;
     } catch (e) {
+
+        // error [Error: failed to resolve address for github.com: Temporary failure in name resolution] {
+        //     server_1  |   errno: -1,
+        //     server_1  |   errorFunction: 'Clone.clone'
+        //     server_1  | }
+            
+
         console.log('error', e);
         return false;
     }

@@ -1,0 +1,71 @@
+{
+	"variables": [],
+	"info": {
+		"name": "android-build-machine",
+		"_postman_id": "8496297a-fd03-ac5e-79ce-4f98516fe4ad",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "configure",
+			"request": {
+				"url": "http://localhost:8080/configure",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"repoURL\": \"git@github.com:davidbarkhuizen/indrajala-fluid-client.git\",\n\t\"buildCommand\": \"studio/gradlew build\",\n\t\"buildPath\": \"studio/build\",\n\t\"buildArtefactsFolderPath\": \"outputs/apk/debug\",\n\t\"publishHost\": \"172.17.0.1\",\n\t\"publishPath\": \"\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "rebuild",
+			"request": {
+				"url": "http://localhost:8080/rebuild",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "publish",
+			"request": {
+				"url": "http://localhost:8080/publish",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

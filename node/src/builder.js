@@ -21,9 +21,13 @@ const cleanLocation = async (
 const build = async (
     checkoutLocation,
     buildCommand,
+    buildCommandPath
 ) => {
     console.log(`executing build command: ${buildCommand}`);
-    const { stdout, stderr, outcome } = await execute(buildCommand, checkoutLocation);
+
+    const cwd = path.join(checkoutLocation, buildCommandPath);
+
+    const { stdout, stderr, outcome } = await execute(buildCommand, cwd);
     console.log('executed.');
     console.log('stdout');
     console.log(stdout);
@@ -34,20 +38,16 @@ const build = async (
 export const rebuild = async (
     checkoutLocation,
     buildCommand,
-    buildLocation
+    buildCommandPath
 ) => {
 
-    const buildPath = path.join(checkoutLocation, buildLocation);
-
-    await cleanLocation(buildPath, 'build');
-    await build(checkoutLocation, buildCommand);
+    await build(checkoutLocation, buildCommand, buildCommandPath);
 };
 
 export const cleanCloneBuild = async (
-    repoURL, checkoutLocation, buildCommand, buildPath
+    repoURL, checkoutLocation, buildCommand, buildCommandPath 
 ) => {
     await cleanLocation(checkoutLocation, 'source');
     await clone(repoURL, checkoutLocation);
-    await cleanLocation(buildPath, 'build');
-    await build(checkoutLocation, buildCommand);
+    await build(checkoutLocation, buildCommand, buildCommandPath);
 };

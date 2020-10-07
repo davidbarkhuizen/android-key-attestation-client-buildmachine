@@ -14,4 +14,6 @@ services:
       
 secrets:
   id_rsa:
-    file: ./resources/secrets/id_rsa
+    file: ./resources/secrets/git/id_rsa
+  publish_key:
+      file: ./resources/secrets/publish/id_rsa

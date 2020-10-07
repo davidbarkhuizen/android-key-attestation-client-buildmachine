@@ -11,6 +11,7 @@ const port = 8080;
 const checkoutPath = "/tmp/checkout/";
 
 import { cleanCloneBuild, rebuild } from './builder.js';
+import { publish } from './publisher.js';
 
 app.get('/', async (req, res) => {
     res.send('indrajala build-machine');
@@ -21,6 +22,9 @@ app.post('/configure', async (req, res) => {
     res.status(200);
     res.send('configuring...');
 
+    console.log('*'.repeat(40));
+    console.log('CONFIGURE');
+
     const repoURL = req.body.repoURL;
     await storage.setItem('repoURL', repoURL);
     console.log('repoURL', repoURL);
@@ -29,11 +33,23 @@ app.post('/configure', async (req, res) => {
     await storage.setItem('buildCommand', buildCommand);
     console.log('buildCommand', buildCommand);
 
-    const buildPath = req.body.buildPath;
-    await storage.setItem('buildPath', buildPath);
-    console.log('buildPath', buildPath);
+    const buildCommandPath = req.body.buildCommandPath;
+    await storage.setItem('buildCommandPath', buildCommandPath);
+    console.log('buildCommandPath', buildCommandPath);
 
-    await cleanCloneBuild(repoURL, checkoutPath, buildCommand, buildPath);
+    const buildArtefactsFolderPath = req.body.buildArtefactsFolderPath;
+    await storage.setItem('buildArtefactsFolderPath', buildArtefactsFolderPath);
+    console.log('buildArtefactsFolderPath', buildArtefactsFolderPath);
+
+    const publishHost = req.body.publishHost;
+    await storage.setItem('publishHost', publishHost);
+    console.log('publishHost', publishHost);
+
+    const publishPath = req.body.publishPath;
+    await storage.setItem('publishPath', publishPath);
+    console.log('publishPath', publishPath);
+
+    // await cleanCloneBuild(repoURL, checkoutPath, buildCommand, buildCommandPath);
 
     console.log('done');
 });
@@ -47,14 +63,26 @@ app.post('/rebuild', async (req, res) => {
     res.status(200);
     res.send('rebuilding...');
 
+    console.log('*'.repeat(40));
+    console.log('REBUILD...');
+
     // TODO check for presence of stored config
 
     const buildCommand = await storage.getItem('buildCommand');
-    const buildPath = await storage.getItem('buildPath');
+    const buildCommandPath = await storage.getItem('buildCommandPath');
 
-    await rebuild(checkoutPath, buildCommand, buildPath);
+    await rebuild(checkoutPath, buildCommand, buildCommandPath, buildCommandPath);
 
     console.log('rebuilt.');
+});
+
+app.post('/publish', async (req, res) => {
+
+    const buildArtefactsFolderPath = await storage.getItem('buildArtefactsFolderPath');
+    const publishHost = await storage.getItem('publishHost');
+    const publishPath = await storage.getItem('publishPath');
+
+    await publish(publishHost, checkoutPath, buildArtefactsFolderPath, publishPath);
 });
 
 // entrypoint

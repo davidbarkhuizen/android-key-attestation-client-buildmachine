@@ -7,10 +7,13 @@ app.use(express.json());
 
 // FROM ENV VARS
 //
-const port = 8080;
-const checkoutPath = "/tmp/checkout/";
+const PORT = process.env.BS_PORT;
+const CHECKOUT_PATH = process.env.BS_CHECKOUT_PATH;
+const PRIVATE_KEY_PATH = process.env.BS_PRIVATE_KEY_PATH;
 
-import { cleanCloneBuild, rebuild } from './builder.js';
+import { cleanLocation } from './utils.js';
+import { build } from './builder.js';
+import { clone } from './git.js';
 import { publish } from './publisher.js';
 
 app.get('/', async (req, res) => {
@@ -18,9 +21,6 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/configure', async (req, res) => {
-
-    res.status(200);
-    res.send('configuring...');
 
     console.log('*'.repeat(40));
     console.log('CONFIGURE');
@@ -45,51 +45,61 @@ app.post('/configure', async (req, res) => {
     await storage.setItem('publishHost', publishHost);
     console.log('publishHost', publishHost);
 
+    const publishUser = req.body.publishUser;
+    await storage.setItem('publishUser', publishUser);
+    console.log('publishUser', publishUser);
+
     const publishPath = req.body.publishPath;
     await storage.setItem('publishPath', publishPath);
     console.log('publishPath', publishPath);
 
-    // await cleanCloneBuild(repoURL, checkoutPath, buildCommand, buildCommandPath);
-
-    console.log('done');
+    res.status(200);
+    res.send('configured.');
 });
 
-app.post('/rebuild', async (req, res) => {
+app.post('/clone', async (req, res) => {
 
-    // should rebuild last commit
-    // so we need to make a note of it always
-    // should clean out build location
+    const repoURL = await storage.getItem('repoURL');
+
+    await cleanLocation(CHECKOUT_PATH, 'source checkout');
+    await clone(repoURL, CHECKOUT_PATH);
 
     res.status(200);
-    res.send('rebuilding...');
+    res.send(`cloned ${repoURL}`);
+});
+
+app.post('/build', async (req, res) => {
 
     console.log('*'.repeat(40));
-    console.log('REBUILD...');
-
-    // TODO check for presence of stored config
+    console.log('BUILD...');
 
     const buildCommand = await storage.getItem('buildCommand');
     const buildCommandPath = await storage.getItem('buildCommandPath');
 
-    await rebuild(checkoutPath, buildCommand, buildCommandPath, buildCommandPath);
+    const { commit, stdout_stderr } = await build(CHECKOUT_PATH, buildCommand, buildCommandPath, buildCommandPath);
 
-    console.log('rebuilt.');
+    res.status(200);
+    res.send(`build:\n${stdout_stderr}`);
 });
 
 app.post('/publish', async (req, res) => {
 
     const buildArtefactsFolderPath = await storage.getItem('buildArtefactsFolderPath');
-    const publishHost = await storage.getItem('publishHost');
-    const publishPath = await storage.getItem('publishPath');
+    const host = await storage.getItem('publishHost');
+    const user = await storage.getItem('publishUser');
+    const path = await storage.getItem('publishPath');
 
-    await publish(publishHost, checkoutPath, buildArtefactsFolderPath, publishPath);
+    const artefacts = await publish(host, user, PRIVATE_KEY_PATH, CHECKOUT_PATH, buildArtefactsFolderPath, path);
+
+    res.status(200);
+    res.send(`published ${artefacts.length} artefacts to ${host}:${path}\n${artefacts.join('\n')}`);
 });
 
 // entrypoint
 //
 storage.init({ dir: './local-storage' })
     .then(
-        app.listen(port, () => {
-            console.log(`android build-machine listening on port ${port}`)
+        app.listen(PORT, () => {
+            console.log(`android build-machine listening on port ${PORT}`)
         })
     );

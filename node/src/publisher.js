@@ -3,21 +3,14 @@ import util from 'util';
 const readdir = util.promisify(fs.readdir);
 
 import * as path from 'path';
-import { NodeSSH } from 'node-ssh';
 
 import { default as scp2 } from 'scp2';
 const connect = util.promisify(scp2.scp);
 
-
-
-
-
-// const ssh = new NodeSSH();
-
-// TODO username, keyfile
-
 export const publish = async (
-    publishHost, 
+    host, 
+    user,
+    keyFilePath,
     checkoutPath, 
     buildArtefactsFolderPath, 
     publishPath
@@ -25,42 +18,41 @@ export const publish = async (
   
     console.log('publishing...');
 
+    const artefacts = [];
+
     try {
 
-        // await ssh.connect({
-        //     host: publishHost,
-        //     username: 'buildmachine',
-        //     privateKey: '/root/.ssh/id_rsa'
-        // });
-
         const localFolderPath = path.join(checkoutPath, buildArtefactsFolderPath);
-        for (const sourceFile of await readdir(localFolderPath)) {
+
+        const sourceFiles = await readdir(localFolderPath)
+
+        for (let sourceFile of sourceFiles) {
 
             const sourceFilePath = path.join(localFolderPath, sourceFile);
 
             const destFilePath = path.join(publishPath, sourceFile);
 
             console.log(`from local path ${sourceFilePath}`);
-            console.log(`to remote path ${publishHost}:${destFilePath}`);
+            console.log(`to remote path ${host}:${destFilePath}`);
     
-            // await ssh.putFile(
-            //     sourceFilePath, 
-            //     publishPath
-            // );
-
             await connect(sourceFilePath, {
-                host: publishHost,
-                username: 'buildmachine',
-                privateKey: fs.readFileSync('/root/.ssh/id_rsa'),
+                host: host,
+                username: user,
+                privateKey: fs.readFileSync(keyFilePath),
                 passphrase: '',
                 path: publishPath
             });
 
+            artefacts.push(sourceFile);
+
             console.log(sourceFile);
         }
+
+        return artefacts;
     }
     catch (e) { 
 
         console.log('ssh error', e);
+        return artefacts;
     }
 };

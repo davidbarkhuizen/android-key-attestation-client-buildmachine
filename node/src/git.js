@@ -33,8 +33,6 @@ export const clone = async (url, checkoutLocation) => {
     }
 };
 
-// 2. update
-
 const getRepo = async (checkoutLocation) => nodegit.Repository.open(checkoutLocation);
 
 const fetch = async (repo) => {
@@ -55,14 +53,5 @@ const checkForNewTag = async (repo) => {
         }
     );
 };
-
-// 3. detect trigger condition (e.g. new tag or commit) and checkout target state
-
-// triggers
-// - new tag, any branch
-
-// 4. launch build process
-// 5. extract build artefact (e.g. APK) 
-// 6. publish build artefact (e.g. S3 bucket, ftp site)
 
 // git.Checkout.tree(repo, tag.targetId()

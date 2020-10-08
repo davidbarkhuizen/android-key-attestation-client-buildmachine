@@ -11,9 +11,13 @@ services:
       - type: bind
         source: /home/david/code/indrajala-fluid-client-buildmachine/node
         target: /server/node  
-      
+    environment:
+      BS_PORT: ${BS_PORT}
+      BS_CHECKOUT_PATH: ${BS_CHECKOUT_PATH}
+      BS_PRIVATE_KEY_PATH: ${BS_PRIVATE_KEY_PATH}
+
 secrets:
   id_rsa:
     file: ./resources/secrets/git/id_rsa
   publish_key:
-      file: ./resources/secrets/publish/id_rsa
+    file: ./resources/secrets/publish/id_rsa

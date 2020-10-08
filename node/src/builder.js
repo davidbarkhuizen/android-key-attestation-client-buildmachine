@@ -9,14 +9,20 @@ export const build = async (
 ) => {
     console.log(`executing build command: ${buildCommand}`);
 
-    const cwd = path.join(checkoutLocation, buildCommandPath);
+    try {
 
-    const { stdout, stderr, outcome } = await execute(buildCommand, cwd);
-    console.log('executed.');
-    console.log('stdout');
-    console.log(stdout);
-    console.log('stderr');
-    console.log(stderr);
+        const cwd = path.join(checkoutLocation, buildCommandPath);
 
-    return { commitHash: 'fish', stdout_stderr: stdout + '\n' + stderr };
+        const { stdout, stderr, outcome } = await execute(buildCommand, cwd);
+        console.log('executed.');
+        console.log('stdout');
+        console.log(stdout);
+        console.log('stderr');
+        console.log(stderr);
+
+        return stdout + '\n' + stderr;
+
+    } catch (e) {
+        return e.toString();
+    };
 };

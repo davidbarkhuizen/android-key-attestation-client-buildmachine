@@ -12,7 +12,7 @@ const PRIVATE_KEY_PATH = process.env.BS_PRIVATE_KEY_PATH;
 let busy = false;
 
 export const init = async () => {
-    await storage.init({ dir: './local-storage' });
+    await storage.init({ dir: './local-storage' }); // TODO from env
 };
 
 export const configure = async (config) => {
@@ -25,6 +25,10 @@ export const clone = async () => {
 
     await cleanLocation(CHECKOUT_PATH, 'source checkout');
     await git.clone(config.repo.url, CHECKOUT_PATH);
+};
+
+export const fetch = async () => {
+    await git.fetch(CHECKOUT_PATH);
 };
 
 export const build = async () => {
@@ -45,4 +49,4 @@ export const publish = async () => {
     );
 
     return `published ${artefacts.length} artefacts to ${config.publish.host}:${config.publish.path}\n${artefacts.join('\n')}`;
-}
+};

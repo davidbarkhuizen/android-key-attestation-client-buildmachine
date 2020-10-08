@@ -35,8 +35,9 @@ export const clone = async (url, checkoutLocation) => {
 
 const getRepo = async (checkoutLocation) => nodegit.Repository.open(checkoutLocation);
 
-const fetch = async (repo) => {
+export const fetch = async (checkoutLocation) => {
     console.log('fetching code...');
+    const repo = await getRepo(checkoutLocation);
     return await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
 };
 

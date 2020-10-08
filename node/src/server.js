@@ -7,7 +7,7 @@ app.use(express.json());
 //
 const PORT = process.env.BS_PORT;
 
-import { init, configure, clone, build, publish } from './controller.js'
+import { init, configure, clone, build, publish, fetch } from './controller.js'
 
 const terminate = (res, text) => {
     res.status(200);
@@ -25,6 +25,11 @@ app.post('/configure', async (req, res) => {
 
 app.post('/clone', async (req, res) => {
     const text = await clone(req.body);
+    terminate(res, text);
+});
+
+app.post('/fetch', async (req, res) => {
+    const text = await fetch(req.body);
     terminate(res, text);
 });
 

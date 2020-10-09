@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init": "npm install",
+    "init": "npm install && npm add  --save node-schedule",
     "dev": "npm run init && eval $(ssh-agent -s) && ssh-add /root/.ssh/id_rsa && nodemon src/server.js"
   },
   "author": "David Barkhuizen @ Indrajala",
@@ -14,7 +14,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "node-persist": "^3.1.0",
-    "node-scheduler": "^1.0.0",
+    "node-schedule": "^1.3.2",
     "nodegit": "^0.27.0",
     "rimraf": "^3.0.2",
     "scp2": "^0.5.0"

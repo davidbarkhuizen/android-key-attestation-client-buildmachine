@@ -10,10 +10,6 @@ var cloneOptions = {
     }
 };
 
-// 1. initial clone
-
-// const commit = repo.getReferenceCommit('head');
-
 export const clone = async (url, checkoutLocation) => {
     try {        
         console.log(`cloning repo ${url} to location ${checkoutLocation} ...`);
@@ -36,25 +32,74 @@ export const clone = async (url, checkoutLocation) => {
 const getRepo = async (checkoutLocation) => nodegit.Repository.open(checkoutLocation);
 
 export const fetch = async (checkoutLocation) => {
+
     console.log('fetching code...');
     const repo = await getRepo(checkoutLocation);
-    const fetched = await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
-    console.log(`fetched? ${fetched}`);
-    return fetched;
+    await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
+    
+    return repo;
 };
 
-const checkForNewTag = async (repo) => {
+export const getLatestTag = async (repo) => {
 
-    const tags = await nodegit.Tag.list(repo);
-    console.log(tags);
+    const tagNames = await nodegit.Tag.list(repo);
 
-    tags.map(
-        async () => {
-            const ref = await nodegit.Reference.lookup(repo, `refs/tags/${tagName}`);
-            const commit = await nodegit.Commit.lookup(repo, ref.target());
-            console.log(commit.date().toJSON())
-        }
-    );
+    if (tagNames.length == 0) {
+        return null;
+    }
+
+    const tags = [];
+
+    for (const tagName of tagNames) {
+
+        const ref = await nodegit.Reference.lookup(repo, `refs/tags/${tagName}`);
+        const commit = await nodegit.Commit.lookup(repo, ref.target());
+
+        tags.push({ 
+            tagName, 
+            date: commit.date()
+        });
+    }
+
+    tags.sort(function(a, b){ 
+
+        if (a.date > b.date) {
+            return 1;
+        } else if (a.date < b.date) {
+            return -1;
+        } else {
+            return 0;
+        } 
+    });
+
+    return tags[0].tagName;
 };
+
+// const commit = repo.getReferenceCommit('head');
+
 
 // git.Checkout.tree(repo, tag.targetId()
+
+// origin/dev
+
+// GitTag.list(repo);
+
+// latest commit for branch
+//
+// repository.getBranchCommit(name).then(function(commit) {
+// // Use commit
+// });
+
+// // commit for hash
+// repository.getCommit(String).then(function(commit) {
+// // Use commit
+// });
+
+// // tag for oid
+// repository.getTag(String).then(function(tag) {
+// // Use tag
+// });
+
+// repository.getTagByName(Short).then(function(tag) {
+// // Use tag
+// });

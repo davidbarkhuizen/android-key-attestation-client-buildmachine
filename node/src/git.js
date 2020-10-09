@@ -38,7 +38,9 @@ const getRepo = async (checkoutLocation) => nodegit.Repository.open(checkoutLoca
 export const fetch = async (checkoutLocation) => {
     console.log('fetching code...');
     const repo = await getRepo(checkoutLocation);
-    return await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
+    const fetched = await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
+    console.log(`fetched? ${fetched}`);
+    return fetched;
 };
 
 const checkForNewTag = async (repo) => {

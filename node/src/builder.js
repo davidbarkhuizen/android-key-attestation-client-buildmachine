@@ -12,7 +12,7 @@ export const build = async (
     try {
         const cwd = path.join(checkoutLocation, buildCommandPath);
         const { stdout, stderr, outcome } = await execute(buildCommand, cwd, console.log);
-        return stdout + '\n' + stderr;
+        return `STDOUT:\n${stdout || 'none'}\nSTDERR:\n${stderr || 'none'}`;
     } catch (e) {
         return e.toString();
     };

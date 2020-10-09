@@ -15,9 +15,14 @@ services:
       BS_PORT: ${BS_PORT}
       BS_CHECKOUT_PATH: ${BS_CHECKOUT_PATH}
       BS_PRIVATE_KEY_PATH: ${BS_PRIVATE_KEY_PATH}
+    networks:
+        - indrajala-build-machine
 
 secrets:
   id_rsa:
     file: ./resources/secrets/git/id_rsa
   publish_key:
     file: ./resources/secrets/publish/id_rsa
+
+networks:
+  indrajala-build-machine:

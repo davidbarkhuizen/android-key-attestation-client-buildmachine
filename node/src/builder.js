@@ -10,18 +10,9 @@ export const build = async (
     console.log(`executing build command: ${buildCommand}`);
 
     try {
-
         const cwd = path.join(checkoutLocation, buildCommandPath);
-
-        const { stdout, stderr, outcome } = await execute(buildCommand, cwd);
-        console.log('executed.');
-        console.log('stdout');
-        console.log(stdout);
-        console.log('stderr');
-        console.log(stderr);
-
+        const { stdout, stderr, outcome } = await execute(buildCommand, cwd, console.log);
         return stdout + '\n' + stderr;
-
     } catch (e) {
         return e.toString();
     };

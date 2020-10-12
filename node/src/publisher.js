@@ -32,8 +32,8 @@ export const publish = async (
 
             const destFilePath = path.join(publishPath, sourceFile);
 
-            console.log(`from local path ${sourceFilePath}`);
-            console.log(`to remote path ${host}:${destFilePath}`);
+            console.log(`from localhost:${sourceFilePath}`);
+            console.log(`to ${host}:${destFilePath}`);
     
             await connect(sourceFilePath, {
                 host: host,
@@ -45,14 +45,12 @@ export const publish = async (
 
             artefacts.push(sourceFile);
 
-            console.log(sourceFile);
+            console.log(`copied build artefact ${sourceFile}`);
         }
-
-        return artefacts;
     }
     catch (e) { 
-
         console.log('ssh error', e);
-        return artefacts;
+    } finally {
+        return `published ${artefacts.length} artefacts to ${host}:${publishPath}\n${artefacts.join('\n')}`;
     }
 };

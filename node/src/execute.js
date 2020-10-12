@@ -18,12 +18,15 @@ import child_process from 'child_process'
 
 export const execute = (command, cwd, logFn) => new Promise(function(resolve, reject) { 
     
+    // `STDOUT:\n${stdout || 'none'}\nSTDERR:\n${stderr || 'none'}`;
+
     try {
 
         const terminate = (error, stdout, stderr) => {
             if (error) {
                 resolve({ outcome: false, stdout:error.stdout, stderr: error.stderr, error });
             } else {
+                // TODO need to check proc exit code == 0
                 resolve({ outcome: true, stdout, stderr });
             }
         };

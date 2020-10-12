@@ -47,8 +47,10 @@ export const clone = async () => {
     await git.clone(config.repo.url, CHECKOUT_PATH);
 };
 
-export const fetch = async () => git.fetch(CHECKOUT_PATH);
-
+export const fetch = async () => {
+    
+    return await git.fetch(CHECKOUT_PATH);
+}
 export const build = async () => {
     const config = await storage.getItem('config')
     return await builder.build(CHECKOUT_PATH, config.build.command, config.build.cwd);
@@ -57,7 +59,7 @@ export const build = async () => {
 export const publish = async () => {
     const config = await storage.getItem('config');
 
-    const artefacts = await publisher.publish(
+    const text = await publisher.publish(
         config.publish.host, 
         config.publish.user, 
         PRIVATE_KEY_PATH, 
@@ -66,32 +68,54 @@ export const publish = async () => {
         config.publish.path
     );
 
-    return `published ${artefacts.length} artefacts to ${config.publish.host}:${config.publish.path}\n${artefacts.join('\n')}`;
+    return text;
 };
 
+// build and publish latest tag
 const updateCodeAndEvaluateTrigger = async () => {
 
     const repo = await fetch();
 
     const latestTag = await git.getLatestTag(repo);
-    console.log(`latest tag: ${latestTag}`);
-
-    const lastBuildTag = '';
-
-    if (latestTag != lastBuildTag) {
-
+    if (latestTag == null) {
+        return;
     }
 
-    // evaluate trigger condition
-    // new (commit | tag) on (branch | *)
-    
-    // on trigger => build, publish
+    console.log(`latest tag in repo: ${latestTag.name}`);
 
-    // trigger
-    // - commit => get latest commit, compare to last built, rebuild if different
-    // - tag => get all tags, sort by date, compare latest to last built
+    let lastTagBuilt = await storage.getItem('lastTagBuilt'); // TODO STORAGE KEYS LOOKUP
+    console.log(`last tag built: ${lastTagBuilt}`);
 
-    console.log('checked trigger');
+    if (latestTag.name != lastTagBuilt) {
+
+        console.log(`newest tag ${latestTag.name} not yet built.`);
+
+        // CHECKOUT TARGET TAG
+
+        const built = await build();
+        if (built) {
+            lastTagBuilt = latestTag.name;
+            await storage.setItem('lastTagBuilt', latestTag.name); // TODO STORAGE KEYS LOOKUP
+            console.log(`new tag ${latestTag.name} built.`);
+        }
+    }
+
+    let lastTagPublished = await storage.getItem('lastTagPublished'); // TODO STORAGE KEYS LOOKUP
+
+    if (lastTagBuilt == latestTag.name) {
+        if (lastTagPublished != latestTag.name) {
+
+            console.log(`artefacts for newly built tag ${latestTag.name} not yet published.`);
+
+            const published = await publish();
+            if (published) {
+                console.log(`published build artefacts for latest tag ${latestTag.name}.`);
+                await storage.setItem('lastTagPublished', latestTag.name); // TODO STORAGE KEYS LOOKUP
+            } else {
+                console.log(`failed tp publish build artefacts for tag ${latestTag.name}.`);
+            }
+        }
+    }
 };
 
 const onTick = async () => {
@@ -114,5 +138,6 @@ const onTick = async () => {
 
 export const init = async () => {
     await storage.init({ dir: './local-storage' }); // TODO from env
+    // TODO source interval from config, don't start if we don't have config
     start(15000, onTick);
 };

@@ -73,6 +73,6 @@ app.post('/publish', async (req, res) => {
 init()
     .then(
         app.listen(PORT, () => {
-            console.log(`android build-machine listening on port ${PORT}`)
+            console.log(`IndraJala build-machine listening on port ${PORT}`)
         })
     );

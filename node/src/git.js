@@ -17,33 +17,36 @@ export const clone = async (url, checkoutLocation) => {
         console.log('cloned.');
         return true;
     } catch (e) {
-
-        // error [Error: failed to resolve address for github.com: Temporary failure in name resolution] {
-        //     server_1  |   errno: -1,
-        //     server_1  |   errorFunction: 'Clone.clone'
-        //     server_1  | }
-            
-
         console.log('error', e);
         return false;
     }
 };
 
-const getRepo = async (checkoutLocation) => nodegit.Repository.open(checkoutLocation);
+const getRepo = async (checkoutLocation) => 
+    nodegit.Repository.open(checkoutLocation);
+
+const getUrlForRepoRemote = async (repo, remoteName) => {
+    const remote = await repo.getRemote(remoteName);
+    const url = await remote.url();
+    return url;
+}
 
 export const fetch = async (checkoutLocation) => {
 
-    console.log('fetching code...');
     const repo = await getRepo(checkoutLocation);
+
+    const url = await getUrlForRepoRemote(repo, 'origin');
+
+    console.log(`fetching code from ${url}...`);
     await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
-    
+    console.log('fetched.');
+
     return repo;
 };
 
 export const getLatestTag = async (repo) => {
 
     const tagNames = await nodegit.Tag.list(repo);
-
     if (tagNames.length == 0) {
         return null;
     }
@@ -56,7 +59,7 @@ export const getLatestTag = async (repo) => {
         const commit = await nodegit.Commit.lookup(repo, ref.target());
 
         tags.push({ 
-            tagName, 
+            name: tagName, 
             date: commit.date()
         });
     }
@@ -72,7 +75,9 @@ export const getLatestTag = async (repo) => {
         } 
     });
 
-    return tags[0].tagName;
+    tags.reverse();    
+
+    return (tags.length > 0) ? tags[0] : null;
 };
 
 // const commit = repo.getReferenceCommit('head');

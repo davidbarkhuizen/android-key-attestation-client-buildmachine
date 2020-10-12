@@ -37,12 +37,14 @@ export const setNotBusy = (lock) => {
 
 export const configure = async (config) => {
     await storage.setItem('config', config);
-    return config;
+    await storage.setItem('lastTagBuilt', null);
+    await storage.setItem('lastTagPublished', null);
+
+    await clone(config);    
+    return true;
 };
 
-export const clone = async () => {
-    const config = await storage.getItem('config');
-
+export const clone = async (config) => {
     await cleanLocation(CHECKOUT_PATH, 'source checkout');
     await git.clone(config.repo.url, CHECKOUT_PATH);
 };
@@ -50,28 +52,21 @@ export const clone = async () => {
 export const fetch = async (verbose = false) => {
     return await git.fetch(CHECKOUT_PATH, verbose);
 }
-export const build = async () => {
-    const config = await storage.getItem('config')
+export const build = async (config) => {
     return await builder.build(CHECKOUT_PATH, config.build.command, config.build.cwd);
 };
 
-export const publish = async () => {
-    const config = await storage.getItem('config');
-
-    const text = await publisher.publish(
-        config.publish.host, 
-        config.publish.user, 
-        PRIVATE_KEY_PATH, 
-        CHECKOUT_PATH, 
-        config.build.artefactsPath, 
-        config.publish.path
-    );
-
-    return text;
-};
+export const publish = async (config) => publisher.publish(
+    config.publish.host, 
+    config.publish.user, 
+    PRIVATE_KEY_PATH, 
+    CHECKOUT_PATH, 
+    config.build.artefactsPath, 
+    config.publish.path
+);
 
 // build and publish latest tag
-const updateCodeAndEvaluateTrigger = async () => {
+const updateCodeAndEvaluateTrigger = async (config) => {
 
     const repo = await fetch(false);
 
@@ -84,12 +79,11 @@ const updateCodeAndEvaluateTrigger = async () => {
     let lastTagBuilt = await storage.getItem('lastTagBuilt'); // TODO STORAGE KEYS LOOKUP
     if (latestTag.name != lastTagBuilt) {
 
-        console.log(`newest tag ${latestTag.name} not yet built.`);
+        console.log(`newest tag ${latestTag.name} has not yet been built.`);
 
-        // CHECKOUT TARGET TAG
         await git.checkoutCommit(repo, latestTag.commit);
 
-        const built = await build();
+        const built = await build(config);
         if (built) {
             lastTagBuilt = latestTag.name;
             await storage.setItem('lastTagBuilt', latestTag.name); // TODO STORAGE KEYS LOOKUP
@@ -104,12 +98,12 @@ const updateCodeAndEvaluateTrigger = async () => {
 
             console.log(`artefacts for newly built tag ${latestTag.name} not yet published.`);
 
-            const published = await publish();
+            const published = await publish(config);
             if (published) {
                 console.log(`published build artefacts for tag ${latestTag.name}.`);
                 await storage.setItem('lastTagPublished', latestTag.name); // TODO STORAGE KEYS LOOKUP
             } else {
-                console.log(`failed tp publish build artefacts for tag ${latestTag.name}.`);
+                console.log(`failed to publish build artefacts for tag ${latestTag.name}.`);
             }
         }
     }
@@ -126,7 +120,8 @@ const onTick = async () => {
     setBusy(lock);
 
     try {
-        await updateCodeAndEvaluateTrigger();
+        const config = await storage.getItem('config')
+        await updateCodeAndEvaluateTrigger(config);
         setNotBusy(lock);
     } catch (e){ 
         console.error(`exception during tick: ${e.message}\n${e.stack}`);

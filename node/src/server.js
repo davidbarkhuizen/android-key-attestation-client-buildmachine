@@ -3,11 +3,9 @@ import express from 'express';
 const app = express();
 app.use(express.json());
 
-// FROM ENV VARS
-//
 const PORT = process.env.BS_PORT;
 
-import { init, configure, clone, build, publish, fetch, isBusy, setBusy, setNotBusy } 
+import { init, configure, isBusy, setBusy, setNotBusy } 
     from './controller.js'
 
 app.get('/', async (req, res) => {
@@ -50,22 +48,6 @@ const handle = async (res, method) => {
 
 app.post('/configure', async (req, res) => {
     handle(res, async () => configure(req.body));
-});
-
-app.post('/clone', async (req, res) => {
-    handle(res, async () => clone());
-});
-
-app.post('/fetch', async (req, res) => {
-    handle(res, async () => fetch());
-});
-
-app.post('/build', async (req, res) => {
-    handle(res, async () => build());
-});
-
-app.post('/publish', async (req, res) => {
-    handle(res, async () => publish());
 });
 
 // entrypoint

@@ -1,6 +1,16 @@
+TODO
+- clean up use of local-storage => single access per call 
+
 # android build machine
 
 ## specification
+
+build machine
+- single repo / single config
+- trigger for build and publish => tag
+- build using gradle
+- authenticate against source repo using private key auth
+- publish via scp using private-key auth
 
 single-repo build machine
 

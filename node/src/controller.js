@@ -73,34 +73,21 @@ export const publish = async () => {
 // build and publish latest tag
 const updateCodeAndEvaluateTrigger = async () => {
 
-    let repo = null;
-    try {
-        repo = await fetch(false);
-    } catch (e) {
-        console.log('error during fetch', e);
-        return false;
-    }
+    const repo = await fetch(false);
 
-    let latestTag;
-    try {
-        latestTag = await git.getLatestTag(repo);
-    } catch (e) {
-        console.log('error during get latest tag', e);
-        return false;
-    }
-
+    const latestTag = await git.getLatestTag(repo);
     if (latestTag == null) {
         console.log('no tags', latestTag);
         return false;
     }
 
     let lastTagBuilt = await storage.getItem('lastTagBuilt'); // TODO STORAGE KEYS LOOKUP
-    
     if (latestTag.name != lastTagBuilt) {
 
         console.log(`newest tag ${latestTag.name} not yet built.`);
 
         // CHECKOUT TARGET TAG
+        await git.checkoutCommit(repo, latestTag.commit);
 
         const built = await build();
         if (built) {
@@ -119,7 +106,7 @@ const updateCodeAndEvaluateTrigger = async () => {
 
             const published = await publish();
             if (published) {
-                console.log(`published build artefacts for latest tag ${latestTag.name}.`);
+                console.log(`published build artefacts for tag ${latestTag.name}.`);
                 await storage.setItem('lastTagPublished', latestTag.name); // TODO STORAGE KEYS LOOKUP
             } else {
                 console.log(`failed tp publish build artefacts for tag ${latestTag.name}.`);
@@ -142,6 +129,7 @@ const onTick = async () => {
         await updateCodeAndEvaluateTrigger();
         setNotBusy(lock);
     } catch (e){ 
+        console.error(`exception during tick: ${e.message}\n${e.stack}`);
         setNotBusy(lock);
     }
 };

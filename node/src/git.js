@@ -44,6 +44,14 @@ export const fetch = async (checkoutLocation, verbose) => {
     return repo;
 };
 
+export const checkoutCommit = async (repo, commit) => {
+    console.log(`checking out commit ${commit.sha()}`);
+    return nodegit.Checkout.tree(repo, 
+        commit, 
+        { checkoutStrategy: nodegit.Checkout.STRATEGY.SAFE_CREATE}
+    );
+};
+
 export const getLatestTag = async (repo) => {
 
     const tagNames = await nodegit.Tag.list(repo);
@@ -60,7 +68,8 @@ export const getLatestTag = async (repo) => {
 
         tags.push({ 
             name: tagName, 
-            date: commit.date()
+            date: commit.date(),
+            commit
         });
     }
 

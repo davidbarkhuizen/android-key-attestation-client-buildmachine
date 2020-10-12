@@ -16,13 +16,13 @@ export const publish = async (
     publishPath
 ) => {
   
-    console.log('publishing...');
-
     const artefacts = [];
 
     try {
 
         const localFolderPath = path.join(checkoutPath, buildArtefactsFolderPath);
+
+        console.log(`looking for build artefacts @ ${localFolderPath}`);
 
         const sourceFiles = await readdir(localFolderPath)
 

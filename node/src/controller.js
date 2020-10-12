@@ -47,9 +47,8 @@ export const clone = async () => {
     await git.clone(config.repo.url, CHECKOUT_PATH);
 };
 
-export const fetch = async () => {
-    
-    return await git.fetch(CHECKOUT_PATH);
+export const fetch = async (verbose = false) => {
+    return await git.fetch(CHECKOUT_PATH, verbose);
 }
 export const build = async () => {
     const config = await storage.getItem('config')
@@ -74,18 +73,29 @@ export const publish = async () => {
 // build and publish latest tag
 const updateCodeAndEvaluateTrigger = async () => {
 
-    const repo = await fetch();
-
-    const latestTag = await git.getLatestTag(repo);
-    if (latestTag == null) {
-        return;
+    let repo = null;
+    try {
+        repo = await fetch(false);
+    } catch (e) {
+        console.log('error during fetch', e);
+        return false;
     }
 
-    console.log(`latest tag in repo: ${latestTag.name}`);
+    let latestTag;
+    try {
+        latestTag = await git.getLatestTag(repo);
+    } catch (e) {
+        console.log('error during get latest tag', e);
+        return false;
+    }
+
+    if (latestTag == null) {
+        console.log('no tags', latestTag);
+        return false;
+    }
 
     let lastTagBuilt = await storage.getItem('lastTagBuilt'); // TODO STORAGE KEYS LOOKUP
-    console.log(`last tag built: ${lastTagBuilt}`);
-
+    
     if (latestTag.name != lastTagBuilt) {
 
         console.log(`newest tag ${latestTag.name} not yet built.`);

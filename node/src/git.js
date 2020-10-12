@@ -31,15 +31,15 @@ const getUrlForRepoRemote = async (repo, remoteName) => {
     return url;
 }
 
-export const fetch = async (checkoutLocation) => {
+export const fetch = async (checkoutLocation, verbose) => {
 
     const repo = await getRepo(checkoutLocation);
 
     const url = await getUrlForRepoRemote(repo, 'origin');
 
-    console.log(`fetching code from ${url}...`);
+    if (verbose) { console.log(`fetching code from ${url}...`); }
     await repo.fetch('origin', { callbacks: { credentials: credentialsCallback }});
-    console.log('fetched.');
+    if (verbose) { console.log('fetched.'); }
 
     return repo;
 };
